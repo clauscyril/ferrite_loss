@@ -1,0 +1,46 @@
+#ifndef SOLVERS_HPP
+#define SOLVERS_HPP
+
+#include <mfem.hpp>
+#include "../headers/customcurl.hpp"
+#include "../headers/Ferrite.hpp"
+
+using namespace mfem;
+
+
+// Custom Coefficient class for calculating the power density Re(E.J*) = Re(rho).(||Jr||² + ||Ji||²)
+class PowerLossCoefficient : public mfem::Coefficient
+{
+private:
+    const FiniteElementSpace *fespace;
+    CurlCustomCoefficient J_r;
+    mutable mfem::Vector J_r_vect;
+    CurlCustomCoefficient J_i;
+    mutable mfem::Vector J_i_vect;
+    std::complex<real_t> rho_eq;
+
+public:
+    PowerLossCoefficient(const FiniteElementSpace *fespace_, std::complex<real_t> rho_eq_, CurlCustomCoefficient &J_r_, CurlCustomCoefficient &J_i_);
+    virtual real_t Eval(mfem::ElementTransformation &T, const mfem::IntegrationPoint &ip) override;
+};
+
+// Custom Coefficient class for computing the excess losses
+class PowerLossMagCoefficient : public mfem::Coefficient
+{
+private:
+    const FiniteElementSpace *fespace;
+    GridFunctionCoefficient H_r;
+    GridFunctionCoefficient H_i;
+    std::complex<real_t> mu_eq;
+    real_t omega;
+
+public:
+    PowerLossMagCoefficient(const FiniteElementSpace *fespace_, std::complex<real_t> mu_eq_, real_t omega_, GridFunctionCoefficient &H_r_, GridFunctionCoefficient &H_i_);
+    virtual real_t Eval(mfem::ElementTransformation &T, const mfem::IntegrationPoint &ip) override;
+};
+
+
+// Main function that compute the losses on the mesh at a given frequency and an average B_peak on the mesh (flux of B times the section)
+void GetPowerLoss(Mesh *mesh, real_t f, real_t Bpeak, real_t &NI, Ferrite ferrite, real_t &P_loss_eddy, real_t &P_loss_mag, std::complex<real_t> &flux, const bool visualization);
+
+#endif // SOLVERS_HPP
