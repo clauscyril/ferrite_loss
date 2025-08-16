@@ -56,6 +56,7 @@ int main(int argc, char *argv[]){
     // parameters to be computed (will be passed as reference)
     real_t b_peak = std::stod(b_option)*1e-3;
     real_t NI=std::stod(ni_option);
+    if (NI != 0.) b_peak = 0.;
     real_t f = std::stod(f_value);
     real_t PLoss_eddy, PLoss_mag;
     std::complex<real_t> flux(0,0);    
