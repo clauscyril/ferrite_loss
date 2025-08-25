@@ -52,7 +52,7 @@ It allows you to:
 For example, here is the plot of the measured and simulated losses inside a ferrite N30.
 
 <p align="center">
-  <img src="img/power_loss.png" alt="Power" width="500">
+  <img src="img/Power_loss.png" alt="Power" width="500">
 </p>
 
 The simulation provides the computed magnetic flux ϕ and the current NI (with one of them being imposed). These quantities can also be plotted as a function of frequency.
