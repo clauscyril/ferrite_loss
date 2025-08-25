@@ -2,8 +2,8 @@
 #define SOLVERS_HPP
 
 #include <mfem.hpp>
-#include "../headers/customcurl.hpp"
-#include "../headers/Ferrite.hpp"
+#include "../../headers/customcurl.hpp"
+#include "../../headers/Ferrite.hpp"
 
 using namespace mfem;
 

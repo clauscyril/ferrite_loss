@@ -11,7 +11,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 path = os.path.dirname(os.path.abspath(__file__))
-path_prog = os.path.join(path,"build")
+path_prog = os.path.join(path,"cpp_code", "build")
 exec_path = os.path.join(path_prog, "simFD")
 
 mesh_path = os.path.join(os.path.dirname(path), "mesh", "N30_P.msh")
@@ -62,25 +62,25 @@ Freq_P = data_p["Frequency"]
 ### Plotting the results
 # Plotting the losses
 plt.figure()
-plt.plot(f_list, P_tot, label="MFEM")
-plt.plot(Freq_P, Power_P, label="Measurement")
+plt.plot(f_list/1000, P_tot, label="MFEM")
+plt.plot(Freq_P/1000, Power_P, label="Measurement")
 plt.legend()
 plt.grid()
-plt.xlabel('f(Hz)')
+plt.xlabel('f(kHz)')
 plt.ylabel('Total losses (W/m3)')
 
 #Plotting the current
 plt.figure()
-plt.plot(f_list, NI)
+plt.plot(f_list/1000, NI)
 # plt.plot(Freq_P, Power_P)
 plt.grid()
-plt.xlabel('f(Hz)')
-plt.ylabel('NI (A)')
+plt.xlabel('f(kHz)')
+plt.ylabel('NI (A.turns)')
 
 # Plotting the flux
 plt.figure()
-plt.plot(f_list, flux_abs)
+plt.plot(f_list/1000, flux_abs)
 plt.grid()
-plt.xlabel('f(Hz)')
+plt.xlabel('f(kHz)')
 plt.ylabel('flux (Wb)')
 plt.show()

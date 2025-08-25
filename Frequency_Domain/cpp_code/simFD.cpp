@@ -5,7 +5,6 @@
 #include "boost/algorithm/string/split.hpp"  // A bit overkill...
 #include "mfem.hpp"
 
-#include "../headers/customcurl.hpp"
 #include "solver.hpp"
 
 #ifndef M_PI 
@@ -35,7 +34,7 @@ int main(int argc, char *argv[]){
     args.AddOption(&material, "-d", "--material", "Properties of the ferrite (pho, sigma, epsilon)");
     args.AddOption(&mu, "-u", "--permeability", "Properties of the permeability (mu_DC, fc)");
     args.AddOption(&b_option, "-b", "--b_peak", "Average of b peak (mT)");
-    args.AddOption(&ni_option, "-ni", "--NI", "Average of b peak (mT)");
+    args.AddOption(&ni_option, "-ni", "--NI", "current in the coil (ampere-turns)");
     args.AddOption(&viz, "-v", "--visualization", "0 : visualization disabled, 1 : enabled using GLVis");
     args.ParseCheck();
 
