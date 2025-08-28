@@ -55,7 +55,7 @@ for f in f_list:
 flux_abs = np.abs(np.array(flux_real) + 1j * np.array(flux_imag))
 
 # Get measured power losses data
-data_p = pd.read_csv(os.path.join(os.path.dirname(path), "Princeton_data", "Sinusoidal", "N30", "N30-Sinusoidal_Phi_15.csv"))
+data_p = pd.read_csv(os.path.join(os.path.dirname(path), "measurements_data","Princeton_data", "Sinusoidal", "N30", "N30-Sinusoidal_Phi_15.csv"))
 Power_P = data_p["Power_Loss"]
 Freq_P = data_p["Frequency"]
 

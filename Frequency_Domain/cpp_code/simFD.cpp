@@ -19,7 +19,7 @@ using namespace mfem;
 
 int main(int argc, char *argv[]){
     // Default parameters
-    std::string path = "../../mesh/square.msh";             // Path to the mesh
+    std::string path = "../../../mesh/square.msh";             // Path to the mesh
     std::string f_value = "100e3";
     std::string material = "5.98e-2 4.44e-1, 2.48e-6";
     std::string mu = "4300 1.8e6";
