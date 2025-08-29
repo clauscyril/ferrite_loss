@@ -77,7 +77,8 @@ void TD_sim(Mesh *mesh, const std::function<real_t(real_t)> &NI_func, real_t Ts,
     GridFunction Jnm1(fespace_E);
     // CurlCustomCoefficient *curl_H_coeff = new CurlCustomCoefficient(&Hn);
 
-    GridFunction Pn(fespace);
+    GridFunction Peddy_Grid(fespace);
+    GridFunction Pexc_Grid(fespace);
 
     real_t phi_n = 0;
     real_t phi_nm1 = 0;
@@ -206,7 +207,7 @@ void TD_sim(Mesh *mesh, const std::function<real_t(real_t)> &NI_func, real_t Ts,
     lf_flux.AddDomainIntegrator(new DomainLFIntegrator(ones));
     lf_flux.Assemble();
 
-    // Linear Form the power losses: lf_p^T . Pn = integral of Pn
+    // Linear Form the power losses: lf_p^T . Peddy_Grid = integral of Peddy_Grid
     LinearForm lf_p(fespace);
     lf_p.AddDomainIntegrator(new DomainLFIntegrator(ones));
     lf_p.Assemble();
@@ -315,21 +316,19 @@ void TD_sim(Mesh *mesh, const std::function<real_t(real_t)> &NI_func, real_t Ts,
         
         VectorGridFunctionCoefficient E_coeff(&En);
         PowerLossCoefficient_TD P_eddy_coeff(fespace_E, J_coeff, E_coeff);
-        Pn.ProjectCoefficient(P_eddy_coeff);
-        real_t P_eddy_tot = 2*M_PI*lf_p(Pn);  // Losses on the volume
+        Peddy_Grid.ProjectCoefficient(P_eddy_coeff);
+        real_t P_eddy_tot = 2*M_PI*lf_p(Peddy_Grid);  // Losses on the volume
         real_t P_eddy = P_eddy_tot/vol;       // Average power density
 
 
-        GridFunction one(fespace);
-        one = 1.;
+
         GridFunctionCoefficient H_coeff(&Hn);
         GridFunctionCoefficient dB_dt_coeff(&db_dt);
         ProductCoefficient HdB_dt(H_coeff, dB_dt_coeff);
         ProductCoefficient r_HdB_dt(HdB_dt, r_coeff);
-        LinearForm lf_exc(fespace);
-        lf_exc.AddDomainIntegrator(new DomainLFIntegrator(r_HdB_dt));
-        lf_exc.Assemble();
-        real_t P_exc = 2*M_PI*lf_exc(one);
+        Pexc_Grid.ProjectCoefficient(r_HdB_dt);
+
+        real_t P_exc = 2*M_PI*lf_p(Pexc_Grid);
         P_exc /= vol;
 
         data_file << t << ";" << P_eddy << ";" << P_exc << ";" << flux << ";" << NI_func(t) <<  ";" << fluxH << ";" << phiH_n <<  std::endl;
@@ -350,7 +349,6 @@ void TD_sim(Mesh *mesh, const std::function<real_t(real_t)> &NI_func, real_t Ts,
                 sout_j << "solution\n" << *mesh << Jn <<  "window_title 'Courant J'" << std::flush;
                 sout_b << "solution\n" << *mesh << Bn <<  "window_title 'Field B'" << std::flush;
 
-                // std::cin.get(); // Décommenter pour pause manuelle
             }
         }
         
@@ -430,7 +428,8 @@ void TD_sim_by_fluxH(Mesh *mesh, const Array<real_t> fluxH_array, real_t Ts, int
     GridFunction Jnm1(fespace_E);
     // CurlCustomCoefficient *curl_H_coeff = new CurlCustomCoefficient(&Hn);
 
-    GridFunction Pn(fespace);
+    GridFunction Peddy_grid(fespace);
+    GridFunction Pexc_Grid(fespace);
 
     real_t phi_n = 0;
     real_t phi_nm1 = 0;
@@ -563,7 +562,7 @@ void TD_sim_by_fluxH(Mesh *mesh, const Array<real_t> fluxH_array, real_t Ts, int
     // File for saving the values of the power and flux for each iterations
     std::string name = "../data/TD.csv";   
     std::ofstream data_file(name);                         
-    data_file << "t;p_eddy;flux;phi_imposed;fluxH;phiH_imposed;NI\n0;0;0;0;0;0;0\n";  // Intialising the file with coluns names and first values to 0
+    data_file << "t;p_eddy;p_exc;flux;fluxH;NI\n0;0;0;0;0;0\n";  // Intialising the file with coluns names and first values to 0
     
 
 
@@ -649,7 +648,6 @@ void TD_sim_by_fluxH(Mesh *mesh, const Array<real_t> fluxH_array, real_t Ts, int
 
         
         for (int i = 0; i<n; i++){
-            // std::cout << X(i)
             X(i) = X2(i);
             Hn(i) = X(i);
         }
@@ -729,13 +727,21 @@ void TD_sim_by_fluxH(Mesh *mesh, const Array<real_t> fluxH_array, real_t Ts, int
         // Compute the power 
         VectorGridFunctionCoefficient E_coeff(&En);
         PowerLossCoefficient_TD P_eddy_coeff(fespace_E, J_coeff, E_coeff);
-        Pn.ProjectCoefficient(P_eddy_coeff);
+        Peddy_grid.ProjectCoefficient(P_eddy_coeff);
 
-        real_t P_eddy_tot = 2*M_PI*lf(Pn);
+        real_t P_eddy_tot = 2*M_PI*lf(Peddy_grid);
         real_t P_eddy = P_eddy_tot/vol;
 
+        GridFunctionCoefficient H_coeff(&Hn);
+        GridFunctionCoefficient dB_dt_coeff(&db_dt);
+        ProductCoefficient HdB_dt(H_coeff, dB_dt_coeff);
+        ProductCoefficient r_HdB_dt(HdB_dt, r_coeff);
+        Pexc_Grid.ProjectCoefficient(r_HdB_dt);
 
-        data_file << t << ";" << P_eddy << ";" << flux << ";" << phi_n << ";" << fluxH<< ";" << phiH_n << ";" << NI << std::endl;
+        real_t P_exc_tot = 2*M_PI*lf(Pexc_Grid);
+        real_t P_exc = P_exc_tot/vol;
+
+        data_file << t << ";" << P_eddy << ";" << P_exc << ";" << flux << ";"  << fluxH << ";" << NI << std::endl;
 
         // Visualisation avec GLVis
         if (step % vis_steps == 0)
