@@ -44,9 +44,9 @@ for f in f_list:
     # f;PLoss_eddy;PLoss_mag;Ptot;flux_real;flux_imag;NI
     data = str(exec.stdout.strip()).replace("'", "").split('\\n')[-1].split(";")  # Get the last line printed by the simulation
     # Parse the differents results
-    P_eddy.append(float(data[1]))
-    P_mag.append(float(data[2]))
-    P_tot.append(float(data[3]))
+    P_eddy.append(float(data[1])/1000)
+    P_mag.append(float(data[2])/1000)
+    P_tot.append(float(data[3])/1000)
     flux_real.append(float(data[4]))
     flux_imag.append(float(data[5]))
     NI.append(float(data[6]))
@@ -56,20 +56,23 @@ flux_abs = np.abs(np.array(flux_real) + 1j * np.array(flux_imag))
 
 # Get measured power losses data
 data_p = pd.read_csv(os.path.join(os.path.dirname(path), "measurements_data","Princeton_data", "Sinusoidal", "N30", "N30-Sinusoidal_Phi_15.csv"))
-Power_P = data_p["Power_Loss"]
+Power_P = data_p["Power_Loss"]/1000
 Freq_P = data_p["Frequency"]
 
 ### Plotting the results
 # Plotting the losses
 plt.figure()
-plt.plot(f_list/1000, P_tot, label="MFEM")
+plt.plot(f_list/1000, P_eddy, '--', label="Eddy Current losses (MFEM)")
+plt.plot(f_list/1000, P_mag, '--', label="Excess losses (MFEM)")
+plt.plot(f_list/1000, P_tot, label="Total losses (MFEM)")
 plt.plot(Freq_P/1000, Power_P, label="Measurement")
 plt.legend()
 plt.grid()
 plt.xlabel('f(kHz)')
-plt.ylabel('Total losses (W/m3)')
+plt.ylabel('Total losses (kW/m3)')
 
-#Plotting the current
+
+#Plotting the currentqq
 plt.figure()
 plt.plot(f_list/1000, NI)
 # plt.plot(Freq_P, Power_P)
